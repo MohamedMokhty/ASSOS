@@ -1,3 +1,4 @@
+// App.tsx
 import { useState } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './components/Dashboard';
@@ -9,6 +10,8 @@ import { Loans } from './components/Loans';
 import { Finances } from './components/Finances';
 import { Donations } from './components/Donations';
 import { Login } from './components/Login';
+import { ThemeToggle } from './components/ThemeToggle';
+import { ThemeProvider } from 'next-themes';
 import { authService } from './lib/appwrite-service';
 
 export type PageType = 'dashboard' | 'members' | 'sessions' | 'tontines' | 'aids' | 'loans' | 'finances' | 'donations';
@@ -24,7 +27,6 @@ export default function App() {
 
   const handleLogout = async () => {
     try {
-      // Si l'utilisateur était connecté via Appwrite, déconnectez-le
       const isLoggedIn = await authService.isLoggedIn();
       if (isLoggedIn) {
         await authService.logout();
@@ -65,18 +67,23 @@ export default function App() {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
-      <Sidebar 
-        currentPage={currentPage} 
-        onPageChange={setCurrentPage}
-        userRole={userRole}
-        onLogout={handleLogout}
-      />
-      <main className="flex-1 lg:ml-64">
-        <div className="p-6 lg:p-8">
-          {renderPage()}
-        </div>
-      </main>
-    </div>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <div className="flex min-h-screen bg-slate-50 dark:bg-slate-900">
+        <Sidebar 
+          currentPage={currentPage} 
+          onPageChange={setCurrentPage}
+          userRole={userRole}
+          onLogout={handleLogout}
+        />
+        <main className="flex-1 lg:ml-64">
+          <div className="p-6 lg:p-8">
+            {renderPage()}
+          </div>
+        </main>
+        
+        {/* Bouton de gestion des thèmes */}
+        <ThemeToggle />
+      </div>
+    </ThemeProvider>
   );
 }
