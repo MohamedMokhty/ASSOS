@@ -9,6 +9,7 @@ import { Loans } from './components/Loans';
 import { Finances } from './components/Finances';
 import { Donations } from './components/Donations';
 import { Login } from './components/Login';
+import { authService } from './lib/appwrite-service';
 
 export type PageType = 'dashboard' | 'members' | 'sessions' | 'tontines' | 'aids' | 'loans' | 'finances' | 'donations';
 export type UserRole = 'admin' | 'tresorier' | null;
@@ -21,9 +22,19 @@ export default function App() {
     setUserRole(role);
   };
 
-  const handleLogout = () => {
-    setUserRole(null);
-    setCurrentPage('dashboard');
+  const handleLogout = async () => {
+    try {
+      // Si l'utilisateur était connecté via Appwrite, déconnectez-le
+      const isLoggedIn = await authService.isLoggedIn();
+      if (isLoggedIn) {
+        await authService.logout();
+      }
+    } catch (error) {
+      console.error('Erreur lors de la déconnexion Appwrite:', error);
+    } finally {
+      setUserRole(null);
+      setCurrentPage('dashboard');
+    }
   };
 
   if (!userRole) {
